@@ -59,6 +59,11 @@ class QuizView {
     this.sfxResultYeay = document.getElementById('sfxResultYeay');
     this.sfxResultAcumalaka = document.getElementById('sfxResultAcumalaka');
 
+    // Web Audio API Engine (Zero-latency audio untuk HP & Desktop)
+    this.audioCtx = null;
+    this.sfxBuffers = {};
+    this.initWebAudio();
+
     this.selectedOptionKey = null;
     this.isAnswerSubmitted = false;
   }
@@ -362,9 +367,82 @@ class QuizView {
   }
 
   /**
-   * Memainkan SFX klik tombol / interaksi UI
+   * Inisialisasi Web Audio API & pre-decode audio buffer di RAM
+   */
+  initWebAudio() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.audioCtx = new AudioCtx();
+        this.loadSfxBuffer('click', 'backsound/mouse-click.mp3');
+        this.loadSfxBuffer('correct', 'backsound/correct.mp3');
+        this.loadSfxBuffer('incorrect', 'backsound/incorrect.mp3');
+        this.loadSfxBuffer('yeay', 'backsound/yeay.mp3');
+        this.loadSfxBuffer('acumalaka', 'backsound/acumalaka.mp3');
+      }
+    } catch (e) {
+      console.warn('Web Audio API tidak aktif, beralih ke HTML5 Audio:', e);
+    }
+  }
+
+  /**
+   * Mengambil file audio dan mendecode langsung menjadi AudioBuffer di memori
+   * @param {string} name 
+   * @param {string} url 
+   */
+  async loadSfxBuffer(name, url) {
+    if (!this.audioCtx) return;
+    try {
+      const res = await fetch(url);
+      const arrayBuf = await res.arrayBuffer();
+      this.audioCtx.decodeAudioData(arrayBuf, (decoded) => {
+        this.sfxBuffers[name] = decoded;
+      }, (err) => {
+        console.warn(`Gagal decode audio ${name}:`, err);
+      });
+    } catch (err) {
+      console.warn(`Gagal fetch buffer ${name}:`, err);
+    }
+  }
+
+  /**
+   * Memainkan AudioBuffer secara langsung (0ms latency, zero delay di mobile)
+   * @param {string} name 
+   * @param {number} volume 
+   * @returns {boolean} true jika sukses via Web Audio API
+   */
+  playBuffer(name, volume = 1.0) {
+    if (this.audioCtx) {
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      const buffer = this.sfxBuffers[name];
+      if (buffer) {
+        try {
+          const source = this.audioCtx.createBufferSource();
+          const gain = this.audioCtx.createGain();
+          gain.gain.value = volume;
+          source.buffer = buffer;
+          source.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          source.start(0);
+          return true;
+        } catch (e) {
+          console.warn('Error playback buffer:', e);
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Memainkan SFX klik tombol / interaksi UI (Zero Delay di HP)
    */
   playClickSound() {
+    // 1. Coba via Web Audio API (instan 0ms)
+    if (this.playBuffer('click', 0.7)) return;
+
+    // 2. Fallback HTML5 audio
     if (this.sfxClick) {
       this.sfxClick.currentTime = 0;
       this.sfxClick.volume = 0.65;
@@ -373,9 +451,11 @@ class QuizView {
   }
 
   /**
-   * Memainkan SFX ketika jawaban benar
+   * Memainkan SFX ketika jawaban benar (Zero Delay di HP)
    */
   playCorrectSound() {
+    if (this.playBuffer('correct', 0.85)) return;
+
     if (this.sfxCorrect) {
       this.sfxCorrect.currentTime = 0;
       this.sfxCorrect.volume = 0.8;
@@ -384,9 +464,11 @@ class QuizView {
   }
 
   /**
-   * Memainkan SFX ketika jawaban salah
+   * Memainkan SFX ketika jawaban salah (Zero Delay di HP)
    */
   playIncorrectSound() {
+    if (this.playBuffer('incorrect', 0.85)) return;
+
     if (this.sfxIncorrect) {
       this.sfxIncorrect.currentTime = 0;
       this.sfxIncorrect.volume = 0.8;
@@ -404,6 +486,7 @@ class QuizView {
     this.stopResultSounds();
 
     if (tier === 'suki') {
+      if (this.playBuffer('acumalaka', 0.95)) return;
       if (this.sfxResultAcumalaka) {
         this.sfxResultAcumalaka.currentTime = 0;
         this.sfxResultAcumalaka.volume = 0.9;
@@ -411,6 +494,7 @@ class QuizView {
       }
     } else {
       // tier 'medium' dan 'sejati' (tinggi)
+      if (this.playBuffer('yeay', 0.95)) return;
       if (this.sfxResultYeay) {
         this.sfxResultYeay.currentTime = 0;
         this.sfxResultYeay.volume = 0.9;

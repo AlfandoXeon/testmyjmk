@@ -91,6 +91,17 @@ class QuizController {
         this.view.playClickSound();
       }
     });
+
+    // 9. Unlock Web Audio Context pada sentuhan / klik pertama di HP
+    const unlockAudio = () => {
+      if (this.view.audioCtx && this.view.audioCtx.state === 'suspended') {
+        this.view.audioCtx.resume();
+      }
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('click', unlockAudio);
+    };
+    document.addEventListener('touchstart', unlockAudio, { passive: true });
+    document.addEventListener('click', unlockAudio);
   }
 
   /**
@@ -101,6 +112,11 @@ class QuizController {
     if (!rawName || rawName.trim().length === 0) {
       this.view.showNameError(true);
       return;
+    }
+
+    // Pastikan Web Audio API aktif
+    if (this.view.audioCtx && this.view.audioCtx.state === 'suspended') {
+      this.view.audioCtx.resume();
     }
 
     this.model.setUserName(rawName);
