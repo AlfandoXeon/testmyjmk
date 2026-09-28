@@ -1,0 +1,57 @@
+Saya mau membuat sebuah aplikasi statis, menggunakan html, css, dan javascript. 
+Nama aplikasi = TestMyJMK
+Deskipsi aplikasi web = Test tingkat kejomokan mu, supaya tidak terdeteksi suki liar..
+
+
+jadi konsep dari aplikasi yang mau saya bikin ini adalah, aplikasi yang dapat digunakan untuk menjawab pilihan ganda (seperti google fomr, atau website sekolah untuk ujian gitu)
+untuk pertanyaan dan jawabannya ada di /pertanyaa.txt nanti anda bisa lihat
+dan FolderImage adalah folder untuk menanpung ilustrasi gambar yang digunakan dalam catatan tersebut..
+Kurang lebih itulah konsep aplikasi yang mau saya buat.. harusnya anda sudah paham apa yang saya mau..
+
+Next untuk system design nya
+karena ini adalah aplikasi statis berbasis html, js, dan css, saya tidak akan memberikan intruksi yang sulit.
+tetapi kalau bisa, tolong anda buatlah sebuah file pertanyaan,json untuk menampung semua pertanyaan dan jawaban yang ada di /pertanyaan.txt, dan juga sertakan path gambar nya
+supaya saya nanti bisa lebih mudah untuk mengembangkan web nya
+gunakan mvc dan oop yaa hehe
+
+
+
+design
+untuk CSS nya gunakan bootstrap saja supaya lebih enteng / tailwind css juga boleh
+lalu untuk animate nya gunakan gsap 
+jadi yaaa... saya mau aplikasi ini terlihat profesional, modern, dan juga responsif support all device
+untuk design UI UX nya, saya lebih suka warna putih biru, seperti {
+
+        #093FB4
+        #FFFCFB
+        #FFD8D8
+        #ED3500
+        rgb(9, 63, 180)
+        rgb(255, 252, 251)
+        rgb(255, 216, 216)
+        rgb(237, 53, 0)
+        blue white peach red retro kids
+} light theme + blue
+dan untuk font nya, tolong anda gunakan yang agak serius dikit. jujur saya kurang paham tentang font, jadi saya serahkan ke anda saja
+NOTE DESIGN:
+Jangan gunakan emoji, lebih baik anda gunaknna icon google saja
+
+
+
+
+
+Flow permainan / aplikasi
+ketika user pertama kali membuka web ini, user di minta namanya terlebih dahulu
+( button Mulai test )
+lalu langusng masuk ke pertanyaan
+( nah seperti yang saya bilang di atas, masing masing pertanyaan itu di buat 1 slide saja, tapi jangan membuat banyak file index html.. manfaatkan saja fungsi java script )
+kalau user salah menjawab, setelah menekan tombol submit di masing masing slide / pertanyaan maka langusng beritahu mereka salah pada detik itu juga
+di bagian akhir ( final ) tampilkan statistik nya, berapa yang benar, berapa yang salah, dan berapa total pertanyaan dan nilainya juga
+
+Aturan hasil final
+Jika nilai user diatas 90 maka Berikan badge card ( beserna nama nya juga ) kalau ia adalah Jomok sejati
+60 - 89 = Anda adalah jomok medium. teruslah mengasah keilmuan anda tentang jmk
+0 - 59 = Anda adalah suki ! terdeteksi kau adalah suki. jangan pernah muncul di sini lagi 
+
+
+
